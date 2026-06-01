@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SchoolClass;
+use App\Models\{SchoolClass, Student};
 use Illuminate\Http\Request;
 
 class SchoolClassController extends Controller
@@ -13,7 +13,7 @@ class SchoolClassController extends Controller
 
     public function store(Request $request) {
         $validated = $request->validate(['name' => 'required', 'code' => 'required|unique:school_classes']);
-        $validated['teacher_id'] = 1; // Default fix para sa error mo
+        $validated['teacher_id'] = 1; // Temporary fix para sa database constraint
         SchoolClass::create($validated);
         return redirect()->route('dashboard');
     }
@@ -30,10 +30,32 @@ class SchoolClassController extends Controller
 
     public function destroy($id) {
         $class = SchoolClass::findOrFail($id);
-        // Manual cleanup para hindi mag-error ang database constraint
+        // Clean up bago burahin para hindi mag-error ang database
         \App\Models\Attendance::where('school_class_id', $id)->delete();
         $class->students()->detach();
         $class->delete();
         return redirect()->route('dashboard');
+    }
+
+    public function addStudent(Request $request) {
+        $student = Student::create($request->validate([
+            'student_id_number' => 'required|unique:students', 
+            'name' => 'required', 
+            'email' => 'required|email'
+        ]));
+        SchoolClass::findOrFail($request->school_class_id)->students()->attach($student->id);
+        return redirect()->back();
+    }
+
+    public function updateStudent(Request $request, $id) {
+        Student::findOrFail($id)->update($request->validate(['name' => 'required', 'email' => 'required']));
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyStudent($id) {
+        $s = Student::findOrFail($id); 
+        $s->classes()->detach(); 
+        $s->delete();
+        return response()->json(['success' => true]);
     }
 }
