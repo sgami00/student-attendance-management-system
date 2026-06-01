@@ -14,7 +14,7 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libzip-dev
 
-RUN docker-php-ext-install pdo_mysql mbstring exifr pcntl bcmath gd zip
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # 3. Kuhanin ang pinakabagong bersyon ng Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -39,4 +39,4 @@ COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 EXPOSE 80
 
 # 10. Patakbuhin ang Supervisor para sabay na umandar ang Nginx at PHP-FPM
-CMD ["/usr/bin/supervisorc", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
