@@ -3,81 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\SchoolClass;
-use App\Models\Student;
 use Illuminate\Http\Request;
 
 class SchoolClassController extends Controller
 {
-    // DISPLAY THE DASHBOARD LIST CARDS
-    public function index()
-    {
-        $classes = SchoolClass::with('students')->get();
-        return view('classes.index', compact('classes'));
+    public function index() { return view('classes.index', ['classes' => SchoolClass::all()]); }
+    
+    public function create() { return view('classes.create'); }
+
+    public function store(Request $request) {
+        $validated = $request->validate(['name' => 'required', 'code' => 'required|unique:school_classes']);
+        $validated['teacher_id'] = 1; // Default fix para sa error mo
+        SchoolClass::create($validated);
+        return redirect()->route('dashboard');
     }
 
-    // SHOW SINGLE CLASS DETAILS WITH STUDENTS & LOG RECORDS
-    public function show($id)
-    {
-        // Eager load sa relations para gumana ang codes at ang logs sa show view
-        $class = SchoolClass::with(['students', 'attendances' => function($query) {
-            $query->orderBy('attendance_date', 'desc');
-        }])->findOrFail($id);
+    public function show($id) { return view('classes.show', ['class' => SchoolClass::with('students')->findOrFail($id)]); }
 
-        return view('classes.show', compact('class'));
-    }
+    public function edit($id) { return view('classes.edit', ['class' => SchoolClass::findOrFail($id)]); }
 
-    // EDIT FORM VIEW FOR THE WHOLE CLASS RESOURCE NAME
-    public function edit($id)
-    {
+    public function update(Request $request, $id) {
         $class = SchoolClass::findOrFail($id);
-        return view('classes.edit', compact('class'));
+        $class->update($request->validate(['name' => 'required', 'code' => 'required']));
+        return redirect()->route('dashboard');
     }
 
-    // UPDATE CLASS NAME DETAILS
-    public function update(Request $request, $id)
-    {
+    public function destroy($id) {
         $class = SchoolClass::findOrFail($id);
-        
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:school_classes,code,' . $class->id,
-        ]);
-
-        $class->update($validated);
-
-        return redirect()->route('dashboard')->with('success', 'Class details updated successfully.');
-    }
-
-    // DELETE ENTIRE CLASS INSTANCE
-    public function destroy($id)
-    {
-        $class = SchoolClass::findOrFail($id);
-        $class->delete(); // Buburahin nito ang klase (Tiyakin na may cascade onDelete soft rules sa db)
-
-        return redirect()->route('dashboard')->with('success', 'Class and its assets deleted permanently.');
-    }
-
-    // CUSTOM METHOD: ENROLL NEW STUDENT TO THE CLASS FROM QUICK FORM CARD
-    public function addStudent(Request $request)
-    {
-        $validated = $request->validate([
-            'school_class_id'   => 'required|exists:school_classes,id',
-            'student_id_number' => 'required|unique:students,student_id_number',
-            'name'              => 'required|string|max:255',
-            'email'             => 'required|email|unique:students,email',
-        ]);
-
-        // 1. Gumawa ng malinis na Student row entry sa master database list table
-        $student = Student::create([
-            'student_id_number' => trim($validated['student_id_number']),
-            'name'              => trim($validated['name']),
-            'email'             => trim($validated['email']),
-        ]);
-
-        // 2. I-attach o idikit ang estudyante sa piniling Class session room relationship handler
-        $class = SchoolClass::findOrFail($validated['school_class_id']);
-        $class->students()->attach($student->id);
-
-        return redirect()->back()->with('success', 'Student enrolled and QR Pass code issued successfully.');
+        // Manual cleanup para hindi mag-error ang database constraint
+        \App\Models\Attendance::where('school_class_id', $id)->delete();
+        $class->students()->detach();
+        $class->delete();
+        return redirect()->route('dashboard');
     }
 }
