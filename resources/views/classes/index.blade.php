@@ -32,7 +32,7 @@
                                     </svg>
                                 </a>
 
-                                <form action="{{ route('classes.destroy', $class->id) }}" method="POST" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang klaseng {{ $class->name }}? Lahat ng data nito pati records ng attendance ay permanenteng mawawala.');" class="inline-block">
+                                <form action="{{ route('classes.destroy', $class->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete the class {{ $class->name }}? All its data including attendance records will be permanently lost');" class="inline-block">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-gray-400 hover:text-red-600 p-1 rounded transition" title="Delete Class From System">
