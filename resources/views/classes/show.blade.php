@@ -14,7 +14,7 @@
         
         <div class="lg:col-span-1 bg-white p-6 rounded shadow border-t-4 border-indigo-600 h-fit">
             <h3 class="text-lg font-bold text-gray-800 mb-1">Add New Student</h3>
-            <p class="text-xs text-gray-500 mb-4">Ipasok ang impormasyon para mai-enroll sa klaseng ito at gawan ng System QR pass code.</p>
+            <p class="text-xs text-gray-500 mb-4">Enter the information to enroll in this class and generate a System QR pass code.</p>
 
             <form action="{{ route('students.store') }}" method="POST" class="space-y-4">
                 @csrf
@@ -84,10 +84,11 @@
 
     <div class="bg-white p-6 rounded shadow mt-6 border-t-4 border-amber-500">
         <h2 class="text-xl font-bold text-gray-800 mb-1">Attendance Session History Logs</h2>
-        <p class="text-xs text-gray-500 mb-4">Dito makikita ang kasaysayan ng mga attendance sheets. Pwede mong baguhin o permanenteng burahin ang mga ito rito.</p>
+        <p class="text-xs text-gray-500 mb-4">This is where you can view the history of your attendance sheets. You can change or permanently delete them here.</p>
 
         @if($class->attendances && $class->attendances->isEmpty())
-            <p class="text-gray-500 italic p-4 bg-gray-50 rounded border text-center">Wala pang na-save na attendance records para sa klaseng ito.</p>
+            <p class="text-gray-500 italic p-4 bg-gray-50 rounded border text-center">
+No attendance records have been saved for this class yet.</p>
         @else
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse table-auto">
@@ -120,7 +121,7 @@
                                         Edit
                                     </a>
 
-                                    <form action="{{ route('attendance.destroy', $record->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Sigurado ka bang gusto mong burahin ang attendance record ni {{ $record->student_name }} para sa araw na ito?');">
+                                    <form action="{{ route('attendance.destroy', $record->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete the attendance record of {{ $record->student_name }} for today?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="bg-red-600 text-white text-xs px-3 py-1.5 rounded hover:bg-red-700 font-semibold shadow-sm">

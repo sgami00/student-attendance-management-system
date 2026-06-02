@@ -4,7 +4,7 @@
         
         <div class="md:col-span-1 bg-white p-6 rounded shadow border-t-4 border-indigo-600 h-fit sticky top-6">
             <h2 class="text-xl font-bold mb-2 text-gray-800">Scan QR Code Image</h2>
-            <p class="text-xs text-gray-500 mb-4">Pumili, i-upload, o i-drag ang larawan ng QR code ng estudyante rito para kusang mapili ang kanyang status sa listahan.</p>
+            <p class="text-xs text-gray-500 mb-4">Select, upload, or drag the student's QR code image here to automatically select their status from the list.</p>
             
             <div id="reader" class="w-full bg-gray-50 rounded overflow-hidden border-2 border-dashed border-gray-300"></div>
             
