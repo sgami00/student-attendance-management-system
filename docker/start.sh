@@ -9,7 +9,7 @@ php artisan migrate --force
 # Gumawa ng admin account (once lang, ignored kung nandoon na)
 php artisan tinker --execute="
 \App\Models\User::firstOrCreate(
-    ['email' => 'ateacher@school.edu'],
+    ['email' => 'teacher@school.edu'],
     ['name' => 'Admin', 'password' => bcrypt('password123')]
 );
 "
