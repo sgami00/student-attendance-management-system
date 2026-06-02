@@ -279,88 +279,89 @@
 
     </div>
 
-    {{-- Distribution --}}
-    <div class="dist-card">
-        <h2>Distribution Visualizer</h2>
-        <p class="dist-sub">Percentage breakdown across all attendance statuses</p>
+    {{-- Bottom row: Distribution + Bar Chart side by side --}}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
 
-        <div class="bar-group">
-            <div class="bar-meta">
-                <span class="bar-label">
-                    <span class="bar-dot" style="background:#4ade80;"></span>
-                    Present Rate
-                </span>
-                <span class="bar-pct">{{ $presentPercent }}%</span>
+        {{-- Distribution Visualizer --}}
+        <div class="dist-card">
+            <h2>Distribution Visualizer</h2>
+            <p class="dist-sub">Percentage breakdown across all attendance statuses</p>
+
+            <div class="bar-group">
+                <div class="bar-meta">
+                    <span class="bar-label">
+                        <span class="bar-dot" style="background:#4ade80;"></span>
+                        Present Rate
+                    </span>
+                    <span class="bar-pct">{{ $presentPercent }}%</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill present" style="width: {{ $presentPercent }}%"></div>
+                </div>
             </div>
-            <div class="bar-track">
-                <div class="bar-fill present" style="width: {{ $presentPercent }}%"></div>
+
+            <div class="bar-group">
+                <div class="bar-meta">
+                    <span class="bar-label">
+                        <span class="bar-dot" style="background:#fbbf24;"></span>
+                        Late Rate
+                    </span>
+                    <span class="bar-pct">{{ $latePercent }}%</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill late" style="width: {{ $latePercent }}%"></div>
+                </div>
+            </div>
+
+            <div class="bar-group">
+                <div class="bar-meta">
+                    <span class="bar-label">
+                        <span class="bar-dot" style="background:#f43f5e;"></span>
+                        Absent Rate
+                    </span>
+                    <span class="bar-pct">{{ $absentPercent }}%</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill absent" style="width: {{ $absentPercent }}%"></div>
+                </div>
             </div>
         </div>
 
-        <div class="bar-group">
-            <div class="bar-meta">
-                <span class="bar-label">
-                    <span class="bar-dot" style="background:#fbbf24;"></span>
-                    Late Rate
-                </span>
-                <span class="bar-pct">{{ $latePercent }}%</span>
-            </div>
-            <div class="bar-track">
-                <div class="bar-fill late" style="width: {{ $latePercent }}%"></div>
-            </div>
-        </div>
+        {{-- Bar Chart --}}
+        <div class="dist-card">
+            <h2>Attendance Overview</h2>
+            <p class="dist-sub">Visual count comparison per attendance status</p>
 
-        <div class="bar-group">
-            <div class="bar-meta">
-                <span class="bar-label">
-                    <span class="bar-dot" style="background:#f43f5e;"></span>
-                    Absent Rate
-                </span>
-                <span class="bar-pct">{{ $absentPercent }}%</span>
-            </div>
-            <div class="bar-track">
-                <div class="bar-fill absent" style="width: {{ $absentPercent }}%"></div>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- Bar Chart --}}
-    <div class="dist-card" style="margin-top: 1.25rem;">
-        <h2>Attendance Overview</h2>
-        <p class="dist-sub">Visual count comparison per attendance status</p>
-
-        <div class="chart-wrap">
-            <div class="chart-area">
-                {{-- Y-axis labels --}}
-                <div class="y-axis" id="y-axis"></div>
-
-                {{-- Bars --}}
-                <div class="bars-container">
-                    <div class="bar-col">
-                        <div class="bar-value" style="color:#4ade80;">{{ $presentCount }}</div>
-                        <div class="bar-outer">
-                            <div class="bar-inner present" id="bar-present" data-val="{{ $presentCount }}" data-max="{{ $total ?: 1 }}"></div>
+            <div class="chart-wrap">
+                <div class="chart-area">
+                    <div class="y-axis" id="y-axis"></div>
+                    <div class="bars-container">
+                        <div class="bar-col">
+                            <div class="bar-value" style="color:#4ade80;">{{ $presentCount }}</div>
+                            <div class="bar-outer">
+                                <div class="bar-inner present" data-val="{{ $presentCount }}" data-max="{{ $total ?: 1 }}"></div>
+                            </div>
+                            <div class="bar-xlabel">Present</div>
                         </div>
-                        <div class="bar-xlabel">Present</div>
-                    </div>
-                    <div class="bar-col">
-                        <div class="bar-value" style="color:#f43f5e;">{{ $absentCount }}</div>
-                        <div class="bar-outer">
-                            <div class="bar-inner absent" id="bar-absent" data-val="{{ $absentCount }}" data-max="{{ $total ?: 1 }}"></div>
+                        <div class="bar-col">
+                            <div class="bar-value" style="color:#f43f5e;">{{ $absentCount }}</div>
+                            <div class="bar-outer">
+                                <div class="bar-inner absent" data-val="{{ $absentCount }}" data-max="{{ $total ?: 1 }}"></div>
+                            </div>
+                            <div class="bar-xlabel">Absent</div>
                         </div>
-                        <div class="bar-xlabel">Absent</div>
-                    </div>
-                    <div class="bar-col">
-                        <div class="bar-value" style="color:#f59e0b;">{{ $lateCount }}</div>
-                        <div class="bar-outer">
-                            <div class="bar-inner late" id="bar-late" data-val="{{ $lateCount }}" data-max="{{ $total ?: 1 }}"></div>
+                        <div class="bar-col">
+                            <div class="bar-value" style="color:#f59e0b;">{{ $lateCount }}</div>
+                            <div class="bar-outer">
+                                <div class="bar-inner late" data-val="{{ $lateCount }}" data-max="{{ $total ?: 1 }}"></div>
+                            </div>
+                            <div class="bar-xlabel">Late</div>
                         </div>
-                        <div class="bar-xlabel">Late</div>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>
