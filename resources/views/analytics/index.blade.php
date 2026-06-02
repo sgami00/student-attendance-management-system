@@ -325,6 +325,142 @@
 
     </div>
 
+    {{-- Bar Chart --}}
+    <div class="dist-card" style="margin-top: 1.25rem;">
+        <h2>Attendance Overview</h2>
+        <p class="dist-sub">Visual count comparison per attendance status</p>
+
+        <div class="chart-wrap">
+            <div class="chart-area">
+                {{-- Y-axis labels --}}
+                <div class="y-axis" id="y-axis"></div>
+
+                {{-- Bars --}}
+                <div class="bars-container">
+                    <div class="bar-col">
+                        <div class="bar-value" style="color:#4ade80;">{{ $presentCount }}</div>
+                        <div class="bar-outer">
+                            <div class="bar-inner present" id="bar-present" data-val="{{ $presentCount }}" data-max="{{ $total ?: 1 }}"></div>
+                        </div>
+                        <div class="bar-xlabel">Present</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value" style="color:#f43f5e;">{{ $absentCount }}</div>
+                        <div class="bar-outer">
+                            <div class="bar-inner absent" id="bar-absent" data-val="{{ $absentCount }}" data-max="{{ $total ?: 1 }}"></div>
+                        </div>
+                        <div class="bar-xlabel">Absent</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value" style="color:#f59e0b;">{{ $lateCount }}</div>
+                        <div class="bar-outer">
+                            <div class="bar-inner late" id="bar-late" data-val="{{ $lateCount }}" data-max="{{ $total ?: 1 }}"></div>
+                        </div>
+                        <div class="bar-xlabel">Late</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<style>
+    .chart-wrap { padding: 0.5rem 0 0; }
+    .chart-area { display: flex; gap: 0; align-items: stretch; height: 220px; }
+
+    .y-axis {
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: space-between;
+        padding-bottom: 28px;
+        padding-right: 10px;
+        min-width: 28px;
+        text-align: right;
+        font-size: 11px;
+        color: #aaa;
+    }
+
+    .bars-container {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        gap: 2rem;
+        padding-bottom: 0;
+        border-left: 1.5px solid #e5e5e5;
+        border-bottom: 1.5px solid #e5e5e5;
+        padding: 0 2rem 0 1.5rem;
+        position: relative;
+    }
+
+    .bar-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        justify-content: flex-end;
+    }
+
+    .bar-value {
+        font-family: 'Syne', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .bar-outer {
+        width: 100%;
+        max-width: 80px;
+        background: #f0f0ec;
+        border-radius: 8px 8px 0 0;
+        height: 160px;
+        display: flex;
+        align-items: flex-end;
+        overflow: hidden;
+    }
+
+    .bar-inner {
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+        height: 0%;
+        transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bar-inner.present { background: linear-gradient(180deg, #4ade80, #22c55e); }
+    .bar-inner.absent  { background: linear-gradient(180deg, #f87171, #f43f5e); }
+    .bar-inner.late    { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+
+    .bar-xlabel {
+        font-size: 12px;
+        font-weight: 500;
+        color: #888;
+        margin-top: 8px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bars = document.querySelectorAll('.bar-inner');
+        const maxVal = Math.max(...Array.from(bars).map(b => parseInt(b.dataset.max)));
+
+        bars.forEach(bar => {
+            const val = parseInt(bar.dataset.val);
+            const max = parseInt(bar.dataset.max);
+            const pct = max > 0 ? (val / max) * 100 : 0;
+            setTimeout(() => { bar.style.height = pct + '%'; }, 100);
+        });
+
+        // Y-axis ticks
+        const yAxis = document.getElementById('y-axis');
+        const total = parseInt({{ $total ?: 1 }});
+        const steps = 4;
+        for (let i = steps; i >= 0; i--) {
+            const tick = document.createElement('span');
+            tick.textContent = Math.round((total / steps) * i);
+            yAxis.appendChild(tick);
+        }
+    });
+</script>
 
 </x-layout>
