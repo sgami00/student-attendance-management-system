@@ -20,6 +20,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('classes', SchoolClassController::class);
     Route::post('/classes/students', [SchoolClassController::class, 'addStudent'])->name('students.store');
     Route::put('/students/{id}', [SchoolClassController::class, 'updateStudent'])->name('students.update');
+
+    // Remove student from a specific class only (detach lang, hindi burahin ang student record)
+    Route::delete('/classes/{classId}/students/{studentId}', [SchoolClassController::class, 'removeStudentFromClass'])->name('students.remove');
+
+    // Fully delete a student record across all classes
     Route::delete('/students/{id}', [SchoolClassController::class, 'destroyStudent'])->name('students.destroy');
     
     // Attendance Routes

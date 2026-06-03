@@ -1,5 +1,29 @@
 {{-- File: resources/views/classes/show.blade.php --}}
 <x-layout>
+
+<style>
+    body { background: #eef2ff; }
+    .mesh-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; background: #eef2ff; }
+    .mesh-bg .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: floatBlob linear infinite; }
+    .blob-1 { width: 600px; height: 600px; background: radial-gradient(circle, #a5b4fc, #6366f1); top: -150px; left: -100px; animation-duration: 18s; }
+    .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, #c4b5fd, #8b5cf6); top: 200px; right: -100px; animation-duration: 22s; animation-delay: -6s; }
+    .blob-3 { width: 400px; height: 400px; background: radial-gradient(circle, #bae6fd, #38bdf8); bottom: 0px; left: 30%; animation-duration: 26s; animation-delay: -12s; }
+    .blob-4 { width: 350px; height: 350px; background: radial-gradient(circle, #fbcfe8, #f472b6); bottom: 100px; right: 20%; animation-duration: 20s; animation-delay: -4s; }
+    @keyframes floatBlob {
+        0%   { transform: translate(0px, 0px) scale(1); }
+        25%  { transform: translate(40px, -30px) scale(1.05); }
+        50%  { transform: translate(-20px, 50px) scale(0.95); }
+        75%  { transform: translate(-40px, -20px) scale(1.03); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+</style>
+
+<div class="mesh-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+</div>
     <div class="bg-white p-6 rounded shadow mb-6">
         <div class="flex justify-between items-center">
             <div>
@@ -9,6 +33,13 @@
             <a href="/dashboard" class="bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded hover:bg-gray-300 font-semibold transition border">Back to Dashboard</a>
         </div>
     </div>
+
+    {{-- Success message --}}
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-800 text-sm px-4 py-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -55,6 +86,7 @@
                                 <th class="p-3">Student Name</th>
                                 <th class="p-3">Email Address</th>
                                 <th class="p-3 text-center">System QR Pass</th>
+                                <th class="p-3 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,6 +104,17 @@
                                             @endphp
                                             <img src="{{ $qrUrl }}" alt="QR Code" class="w-[60px] h-[60px] block mx-auto">
                                         </div>
+                                    </td>
+                                    <td class="p-3 text-center">
+                                        <form action="{{ route('students.remove', [$class->id, $student->id]) }}" method="POST"
+                                            onsubmit="return confirm('Remove {{ $student->name }} from this class?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="w-full bg-red-600 text-white text-xs px-3 py-1.5 rounded hover:bg-red-700 font-semibold shadow-sm">
+                                                Remove
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach

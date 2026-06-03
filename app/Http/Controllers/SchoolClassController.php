@@ -13,7 +13,7 @@ class SchoolClassController extends Controller
 
     public function store(Request $request) {
         $validated = $request->validate(['name' => 'required', 'code' => 'required|unique:school_classes']);
-        $validated['teacher_id'] = 1; // Temporary fix para sa database constraint
+        $validated['teacher_id'] = 1;
         SchoolClass::create($validated);
         return redirect()->route('dashboard');
     }
@@ -30,7 +30,6 @@ class SchoolClassController extends Controller
 
     public function destroy($id) {
         $class = SchoolClass::findOrFail($id);
-        // Clean up bago burahin para hindi mag-error ang database
         \App\Models\Attendance::where('school_class_id', $id)->delete();
         $class->students()->detach();
         $class->delete();
@@ -52,10 +51,19 @@ class SchoolClassController extends Controller
         return response()->json(['success' => true]);
     }
 
+    // Remove student from a specific class only — hindi burahin ang student record
+    public function removeStudentFromClass($classId, $studentId) {
+        $class = SchoolClass::findOrFail($classId);
+        $class->students()->detach($studentId);
+        return redirect()->route('classes.show', $classId)->with('success', 'Student removed from this class.');
+    }
+
+    // Fully delete a student record across all classes
     public function destroyStudent($id) {
-        $s = Student::findOrFail($id); 
-        $s->classes()->detach(); 
+        $s = Student::findOrFail($id);
+        $classId = $s->classes()->first()?->id;
+        $s->classes()->detach();
         $s->delete();
-        return response()->json(['success' => true]);
+        return redirect()->route('classes.show', $classId)->with('success', 'Student deleted successfully.');
     }
 }

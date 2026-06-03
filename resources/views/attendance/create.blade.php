@@ -1,8 +1,33 @@
 {{-- File: resources/views/attendance/create.blade.php --}}
 <x-layout>
+
+<style>
+    body { background: #eef2ff; }
+    .mesh-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; background: #eef2ff; }
+    .mesh-bg .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: floatBlob linear infinite; }
+    .blob-1 { width: 600px; height: 600px; background: radial-gradient(circle, #a5b4fc, #6366f1); top: -150px; left: -100px; animation-duration: 18s; }
+    .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, #c4b5fd, #8b5cf6); top: 200px; right: -100px; animation-duration: 22s; animation-delay: -6s; }
+    .blob-3 { width: 400px; height: 400px; background: radial-gradient(circle, #bae6fd, #38bdf8); bottom: 0px; left: 30%; animation-duration: 26s; animation-delay: -12s; }
+    .blob-4 { width: 350px; height: 350px; background: radial-gradient(circle, #fbcfe8, #f472b6); bottom: 100px; right: 20%; animation-duration: 20s; animation-delay: -4s; }
+    @keyframes floatBlob {
+        0%   { transform: translate(0px, 0px) scale(1); }
+        25%  { transform: translate(40px, -30px) scale(1.05); }
+        50%  { transform: translate(-20px, 50px) scale(0.95); }
+        75%  { transform: translate(-40px, -20px) scale(1.03); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+</style>
+
+<div class="mesh-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+</div>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <div class="md:col-span-1 bg-white p-6 rounded shadow border-t-4 border-indigo-600 h-fit sticky top-6">
+        <div class="md:col-span-1 bg-white bg-opacity-80 backdrop-blur-md p-6 rounded-2xl shadow border-t-4 border-indigo-600 h-fit sticky top-6">
             <h2 class="text-xl font-bold mb-2 text-gray-800">Scan QR Code Image</h2>
             <p class="text-xs text-gray-500 mb-4">Select, upload, or drag the student's QR code image here to automatically select their status from the list.</p>
             
@@ -11,10 +36,10 @@
             <div id="scan-status" class="mt-4 p-3 rounded text-sm font-medium text-center hidden"></div>
         </div>
 
-        <div class="md:col-span-2 bg-white p-6 rounded shadow">
+        <div class="md:col-span-2 bg-white bg-opacity-80 backdrop-blur-md p-6 rounded-2xl shadow">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="text-xl font-bold text-gray-800">Record Attendance for {{ $schoolClass->name }}</h2>
-                <span class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 rounded">Hybrid Input Active</span>
+                <span class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 rounded-full">Hybrid Input Active</span>
             </div>
             <p class="text-sm text-gray-500 mb-4">Class Code: <span class="font-mono bg-gray-100 px-1 rounded">{{ $schoolClass->code }}</span></p>
             
@@ -22,7 +47,7 @@
                 @csrf
                 <div class="mb-4 max-w-xs">
                     <label class="block text-sm font-medium mb-1 text-gray-700">Session Date</label>
-                    <input type="date" id="attendance_date" name="attendance_date" value="{{ date('Y-m-d') }}" class="w-full border rounded p-2" required>
+                    <input type="date" id="attendance_date" name="attendance_date" value="{{ date('Y-m-d') }}" class="w-full border rounded-lg p-2" required>
                 </div>
 
                 <table class="w-full text-left mt-4 border-collapse">
@@ -57,7 +82,7 @@
                     </tbody>
                 </table>
                 
-                <button type="submit" class="mt-6 bg-indigo-600 text-white px-6 py-2.5 rounded hover:bg-indigo-700 font-semibold w-full md:w-auto shadow transition-colors duration-150">
+                <button type="submit" class="mt-6 bg-indigo-600 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-700 font-semibold w-full md:w-auto shadow transition-colors duration-150">
                     Save System Records
                 </button>
             </form>
@@ -97,10 +122,8 @@
                         beep.play().catch(e => console.log("Audio pipeline block bypass"));
                     }
 
-                    // Awtomatikong lilipat sa Present ang radio button sa listahan
                     presentRadio.checked = true;
                     
-                    // Mag-fa-flash ng kulay berde ang row para alam ni teacher na nahanap ito
                     studentRow.style.backgroundColor = "#bbf7d0"; 
                     studentRow.style.transition = "all 0.3s ease";
                     
