@@ -10,7 +10,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// ─── Student Auth (uses session, no Laravel guard needed) ────────────────────
+// ─── Student Auth ─────────────────────────────────────────────────────────────
 Route::get('/student/login', [StudentAuthController::class, 'showLogin'])->name('student.login');
 Route::post('/student/login', [StudentAuthController::class, 'login'])->name('student.login.submit');
 Route::post('/student/logout', [StudentAuthController::class, 'logout'])->name('student.logout');
@@ -20,6 +20,9 @@ Route::get('/student/attendance', [StudentAuthController::class, 'attendance'])-
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [SchoolClassController::class, 'index'])->name('dashboard');
+
+    // ── All Students (across all classes ng teacher) ──
+    Route::get('/my-students', [SchoolClassController::class, 'allStudents'])->name('students.all');
 
     // Analytics
     Route::get('/analytics', [AttendanceController::class, 'analytics'])->name('analytics');

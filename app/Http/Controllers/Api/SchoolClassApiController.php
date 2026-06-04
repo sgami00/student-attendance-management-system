@@ -118,4 +118,47 @@ class SchoolClassApiController extends Controller
             'total'    => $class->students->count(),
         ], 200, [], JSON_PRETTY_PRINT);
     }
+
+    // GET /api/teachers/{teacher_id}/students
+    // Lahat ng students ng isang teacher across all classes niya
+    public function getTeacherStudents($teacher_id)
+    {
+        $classes = SchoolClass::where('teacher_id', $teacher_id)
+            ->with('students')
+            ->get();
+
+        if ($classes->isEmpty()) {
+            return response()->json([
+                'message'  => 'No classes found for this teacher.',
+                'teacher_id' => $teacher_id,
+                'total_classes'  => 0,
+                'total_students' => 0,
+                'classes'  => [],
+            ], 200, [], JSON_PRETTY_PRINT);
+        }
+
+        // Collect all students, grouped by class
+        $classesData = $classes->map(function ($class) {
+            return [
+                'class_id'   => $class->id,
+                'class_name' => $class->name,
+                'class_code' => $class->code,
+                'students'   => $class->students,
+                'total'      => $class->students->count(),
+            ];
+        });
+
+        // All unique students across all classes (walang duplicate)
+        $allStudents = $classes->flatMap(function ($class) {
+            return $class->students;
+        })->unique('id')->values();
+
+        return response()->json([
+            'teacher_id'     => $teacher_id,
+            'total_classes'  => $classes->count(),
+            'total_students' => $allStudents->count(),
+            'all_students'   => $allStudents,
+            'by_class'       => $classesData,
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
 }
