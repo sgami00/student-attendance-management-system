@@ -114,6 +114,7 @@
             </div>
         @endif
     </div>
+    
 
     <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
