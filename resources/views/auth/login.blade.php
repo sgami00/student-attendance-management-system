@@ -3,195 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Student Attendance System</title>
+    <title>Login – StudentAttendanceSystem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: #eef2ff;
-            margin: 0;
+            background: linear-gradient(135deg, #dde8ff 0%, #eef0fb 40%, #f9dff5 100%);
             min-height: 100vh;
         }
 
-        .mesh-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            overflow: hidden;
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(80, 80, 160, 0.10);
         }
 
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.55;
-            animation: floatBlob linear infinite;
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #e2e4f0;
+            border-radius: 10px;
+            padding: 0 14px;
+            background: #f8f9fe;
+            transition: border-color 0.2s;
         }
 
-        .blob-1 {
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, #a5b4fc, #6366f1);
-            top: -150px; left: -100px;
-            animation-duration: 18s;
-        }
-        .blob-2 {
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, #c4b5fd, #8b5cf6);
-            top: 200px; right: -100px;
-            animation-duration: 22s;
-            animation-delay: -6s;
-        }
-        .blob-3 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, #bae6fd, #38bdf8);
-            bottom: 0px; left: 30%;
-            animation-duration: 26s;
-            animation-delay: -12s;
-        }
-        .blob-4 {
-            width: 350px; height: 350px;
-            background: radial-gradient(circle, #fbcfe8, #f472b6);
-            bottom: 100px; right: 20%;
-            animation-duration: 20s;
-            animation-delay: -4s;
+        .input-wrap:focus-within {
+            border-color: #5b5fcf;
+            background: #fff;
         }
 
-        @keyframes floatBlob {
-            0%   { transform: translate(0px, 0px) scale(1); }
-            25%  { transform: translate(40px, -30px) scale(1.05); }
-            50%  { transform: translate(-20px, 50px) scale(0.95); }
-            75%  { transform: translate(-40px, -20px) scale(1.03); }
-            100% { transform: translate(0px, 0px) scale(1); }
+        .input-wrap i {
+            color: #b0b4cc;
+            font-size: 0.9rem;
+            margin-right: 10px;
         }
 
-        .login-card {
-            position: relative;
-            z-index: 1;
-        }
-
-        .input-field {
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .input-field:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        .input-wrap input {
+            border: none;
+            background: transparent;
             outline: none;
+            padding: 12px 0;
+            font-size: 0.92rem;
+            width: 100%;
+            color: #333;
         }
-        .input-field.error {
-            border-color: #ef4444;
+
+        .input-wrap input::placeholder {
+            color: #b0b4cc;
         }
-        .input-field.error:focus {
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+
+        .btn-login {
+            width: 100%;
+            background: #5b5fcf;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 13px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-login:hover {
+            background: #4648b8;
+            transform: translateY(-1px);
+        }
+
+        /* Student portal button — outlined style */
+        .btn-student {
+            width: 100%;
+            background: transparent;
+            color: #5b5fcf;
+            border: 1.5px solid #5b5fcf;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.1s;
+            letter-spacing: 0.01em;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-student:hover {
+            background: #5b5fcf;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #c5c8dc;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e6e8f3;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen">
+<body class="flex flex-col items-center justify-center min-h-screen px-4">
 
-    {{-- Animated mesh background --}}
-    <div class="mesh-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-        <div class="blob blob-4"></div>
-    </div>
-
-    {{-- Header --}}
-    <div class="text-center mb-8 login-card">
+    {{-- Brand Header --}}
+    <div class="text-center mb-6">
         <div class="flex items-center justify-center gap-3 mb-2">
-            <div class="bg-indigo-600 p-2.5 rounded-xl shadow">
-                <i class="fa-solid fa-qrcode text-white text-2xl"></i>
+            <div class="bg-indigo-600 text-white rounded-xl p-2.5 shadow-md">
+                <i class="fa-solid fa-qrcode text-2xl"></i>
             </div>
-            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">
-                StudentAttendanceSystem
-            </h1>
+            <span class="text-3xl font-bold text-gray-900 tracking-tight">StudentAttendanceSystem</span>
         </div>
-        <p class="text-sm text-gray-500 font-medium tracking-widest uppercase">Teacher Portal</p>
+        <p class="text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase">Teacher Portal</p>
     </div>
 
-    {{-- Login Card --}}
-    <div class="login-card bg-white bg-opacity-80 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-sm border border-white border-opacity-60">
+    {{-- Card --}}
+    <div class="card w-full max-w-md px-8 py-8">
 
-        <h2 class="text-xl font-bold mb-1 text-gray-800">Welcome👋</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-1">Welcome 👋</h2>
         <p class="text-sm text-gray-500 mb-6">Sign in to manage your classes and attendance.</p>
 
+        {{-- Error Message --}}
+        @if ($errors->any())
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        {{-- Teacher Login Form --}}
         <form action="/login" method="POST" class="space-y-4">
             @csrf
 
-            {{-- Email --}}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">
-                    Email Address
-                </label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                        <i class="fa-solid fa-envelope text-sm"></i>
-                    </span>
-                    <input type="email" name="email"
-                        value="{{ old('email') }}"
-                        placeholder="teacher@school.edu"
-                        class="input-field w-full border rounded-xl pl-9 pr-3 py-2.5 text-sm {{ $errors->has('email') ? 'error border-red-400' : 'border-gray-300' }}"
-                        required>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
+                <div class="input-wrap">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" name="email" placeholder="teacher@school.edu"
+                           value="{{ old('email') }}" required autocomplete="email">
                 </div>
-                @error('email')
-                    <p class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        {{ $message }}
-                    </p>
-                @enderror
             </div>
 
-            {{-- Password --}}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">
-                    Password
-                </label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                        <i class="fa-solid fa-lock text-sm"></i>
-                    </span>
-                    <input type="password" name="password"
-                        id="passwordInput"
-                        placeholder="••••••••"
-                        class="input-field w-full border rounded-xl pl-9 pr-10 py-2.5 text-sm {{ $errors->has('password') ? 'error border-red-400' : 'border-gray-300' }}"
-                        required>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" id="password-field"
+                           placeholder="••••••••" required autocomplete="current-password">
                     <button type="button" onclick="togglePassword()"
-                        class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
-                        <i class="fa-solid fa-eye text-sm" id="eyeIcon"></i>
+                            class="text-gray-400 hover:text-gray-600 ml-2 transition-colors" tabindex="-1">
+                        <i class="fa-regular fa-eye" id="eye-icon"></i>
                     </button>
                 </div>
-                @error('password')
-                    <p class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        {{ $message }}
-                    </p>
-                @enderror
             </div>
 
-            {{-- Submit --}}
-            <button type="submit"
-                class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl hover:bg-indigo-700 transition shadow-md mt-2 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-right-to-bracket"></i>
-                Login
+            <button type="submit" class="btn-login mt-2">
+                <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> Login
             </button>
         </form>
+
+        {{-- Divider --}}
+        <div class="divider my-5">OR</div>
+
+        {{-- Student Portal Button --}}
+        <a href="{{ route('student.login') }}" class="btn-student">
+            <i class="fa-solid fa-graduation-cap"></i>
+            Student Portal
+        </a>
+
+        <p class="text-center text-xs text-gray-400 mt-3">
+            View your attendance records as a student
+        </p>
+
     </div>
 
-    <p class="login-card text-xs text-gray-500 mt-6">© {{ date('Y') }} Student Attendance Management System</p>
+    {{-- Footer --}}
+    <p class="text-xs text-gray-400 mt-6">
+        &copy; {{ date('Y') }} Student Attendance Management System
+    </p>
 
-    <script>
-        function togglePassword() {
-            const input = document.getElementById('passwordInput');
-            const icon = document.getElementById('eyeIcon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+<script>
+    function togglePassword() {
+        const field = document.getElementById('password-field');
+        const icon  = document.getElementById('eye-icon');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
-    </script>
+    }
+</script>
 
 </body>
 </html>

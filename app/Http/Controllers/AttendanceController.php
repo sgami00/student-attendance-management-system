@@ -51,4 +51,22 @@ class AttendanceController extends Controller
         Attendance::findOrFail($id)->delete();
         return response()->json(['success' => true]);
     }
+
+    // ─── NEW: Student Attendance Log ───────────────────────────────────────────
+    public function studentLog(Student $student)
+    {
+        $attendances = $student->attendances()
+            ->with('schoolClass')
+            ->orderBy('attendance_date', 'desc')
+            ->get();
+
+        $presentCount = $attendances->where('status', 'present')->count();
+        $absentCount  = $attendances->where('status', 'absent')->count();
+        $lateCount    = $attendances->where('status', 'late')->count();
+        $total        = $attendances->count();
+
+        return view('attendance.student-log', compact(
+            'student', 'attendances', 'presentCount', 'absentCount', 'lateCount', 'total'
+        ));
+    }
 }
