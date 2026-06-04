@@ -16,7 +16,7 @@
 </head>
 <body class="px-4 py-8">
 
-    {{-- Navbar --}}
+    {{--- Navbar ---}}
     <nav class="max-w-3xl mx-auto flex items-center justify-between mb-8">
         <div class="flex items-center gap-2">
             <div class="bg-emerald-500 text-white rounded-xl p-2 shadow">
