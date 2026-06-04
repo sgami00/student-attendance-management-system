@@ -33,6 +33,10 @@
         </form>
     </nav>
 
+    @php
+        $attendanceRate = $total > 0 ? round((($presentCount + ($lateCount * 0.5)) / $total) * 100) : 0;
+    @endphp
+
     <div class="max-w-3xl mx-auto space-y-5">
 
         {{-- Profile Card --}}
@@ -53,6 +57,7 @@
                         @else text-red-500
                         @endif
                     ">{{ $attendanceRate }}%</div>
+                    
                 </div>
             </div>
         </div>
