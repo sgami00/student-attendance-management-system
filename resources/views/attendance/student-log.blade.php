@@ -98,6 +98,7 @@
                                 </td>
                                 <td class="px-5 py-3 text-center space-x-1 whitespace-nowrap">
                                     <button onclick="openEditModal({{ $record->id }}, '{{ $record->status }}')"
+                                    
                                             class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded hover:bg-blue-700 font-semibold shadow-sm">
                                         Edit
                                     </button>
