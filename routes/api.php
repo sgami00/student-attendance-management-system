@@ -2,12 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AttendanceApiController;
+use App\Http\Controllers\Api\SchoolClassApiController;
 
-// Tinanggal ang prefix('v1') group kaya direkta na ang mga daan natin
-Route::apiResource('attendance', AttendanceApiController::class);
+// Lahat ng routes dito ay walang auth middleware
+Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function () {
 
-// Custom Explicit Routes (Naka-base na agad pagkatapos ng /api/)
-Route::get('/attendance', [AttendanceApiController::class, 'index']);
-Route::post('/attendance', [AttendanceApiController::class, 'store']);
-Route::put('/attendance/{id}', [AttendanceApiController::class, 'update']);
-Route::delete('/attendance/{id}', [AttendanceApiController::class, 'destroy']);
+    // ─── CLASSES ──────────────────────────────────────────────────────────────
+    Route::apiResource('classes', SchoolClassApiController::class);
+    Route::post('/classes/{id}/students', [SchoolClassApiController::class, 'addStudent']);
+    Route::get('/classes/{id}/students',  [SchoolClassApiController::class, 'getStudents']);
+
+    // ─── ATTENDANCE ───────────────────────────────────────────────────────────
+    // IMPORTANT: static routes MUST be above wildcard {id} routes
+    Route::get('/attendance/students', [AttendanceApiController::class, 'getAllStudents']);
+
+    Route::get('/attendance',         [AttendanceApiController::class, 'index']);
+    Route::post('/attendance',        [AttendanceApiController::class, 'store']);
+    Route::put('/attendance/{id}',    [AttendanceApiController::class, 'update']);
+    Route::delete('/attendance/{id}', [AttendanceApiController::class, 'destroy']);
+
+});
