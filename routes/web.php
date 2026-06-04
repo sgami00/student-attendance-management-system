@@ -15,6 +15,8 @@ Route::get('/student/login', [StudentAuthController::class, 'showLogin'])->name(
 Route::post('/student/login', [StudentAuthController::class, 'login'])->name('student.login.submit');
 Route::post('/student/logout', [StudentAuthController::class, 'logout'])->name('student.logout');
 Route::get('/student/attendance', [StudentAuthController::class, 'attendance'])->name('student.attendance');
+Route::get('/student/enroll', [StudentAuthController::class, 'showEnroll'])->name('student.enroll');
+Route::post('/student/enroll', [StudentAuthController::class, 'enroll'])->name('student.enroll.submit');
 
 // ─── Teacher Protected Routes ─────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {

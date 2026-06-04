@@ -17,7 +17,6 @@
 <body class="px-4 py-8">
 
     {{--- Navbar ---}}
-    
     <nav class="max-w-3xl mx-auto flex items-center justify-between mb-8">
         <div class="flex items-center gap-2">
             <div class="bg-emerald-500 text-white rounded-xl p-2 shadow">
@@ -25,13 +24,19 @@
             </div>
             <span class="font-bold text-gray-800 text-lg">Student Portal</span>
         </div>
-        <form action="{{ route('student.logout') }}" method="POST">
-            @csrf
-            <button type="submit"
-                    class="text-sm text-gray-500 hover:text-red-600 font-semibold border border-gray-200 px-4 py-1.5 rounded-lg bg-white hover:bg-red-50 transition">
-                <i class="fa-solid fa-right-from-bracket mr-1"></i> Sign Out
-            </button>
-        </form>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('student.enroll') }}"
+               class="text-sm text-emerald-600 hover:text-white font-semibold border border-emerald-400 px-4 py-1.5 rounded-lg bg-white hover:bg-emerald-500 transition">
+                <i class="fa-solid fa-plus mr-1"></i> Enroll
+            </a>
+            <form action="{{ route('student.logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                        class="text-sm text-gray-500 hover:text-red-600 font-semibold border border-gray-200 px-4 py-1.5 rounded-lg bg-white hover:bg-red-50 transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Sign Out
+                </button>
+            </form>
+        </div>
     </nav>
 
     @php
@@ -58,7 +63,6 @@
                         @else text-red-500
                         @endif
                     ">{{ $attendanceRate }}%</div>
-                    
                 </div>
             </div>
         </div>
