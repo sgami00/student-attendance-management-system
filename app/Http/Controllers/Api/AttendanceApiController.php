@@ -51,8 +51,8 @@ class AttendanceApiController extends Controller
         $request->validate([
             'school_class_id'   => 'required|exists:school_classes,id',
             'student_id_number' => 'required|string',
-            'attendance_date'   => 'required|date',
-            'status'            => 'required|in:present,absent,late',
+            'attendance_date'   => 'nullable|date',
+            'status'            => 'nullable|in:present,absent,late',
         ]);
 
         $class = SchoolClass::findOrFail($request->school_class_id);
@@ -84,14 +84,18 @@ class AttendanceApiController extends Controller
             $wasEnrolled = true;
         }
 
+        // Default: today + present
+        $attendanceDate = $request->attendance_date ?? today()->toDateString();
+        $status         = $request->status ?? 'present';
+
         $attendance = Attendance::updateOrCreate(
             [
                 'school_class_id'   => $class->id,
                 'student_id_number' => $student->student_id_number,
-                'attendance_date'   => $request->attendance_date,
+                'attendance_date'   => $attendanceDate,
             ],
             [
-                'status'       => $request->status,
+                'status'       => $status,
                 'student_name' => $student->name,
             ]
         );
