@@ -107,6 +107,50 @@ class SchoolClassApiController extends Controller
         ], 201, [], JSON_PRETTY_PRINT);
     }
 
+    // GET /api/classes/{id}/students/{studentId}
+    public function getStudent($id, $studentId)
+    {
+        $class   = SchoolClass::findOrFail($id);
+        $student = $class->students()->where('students.id', $studentId)->firstOrFail();
+
+        return response()->json($student, 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // PUT/PATCH /api/classes/{id}/students/{studentId}
+    public function updateStudent(Request $request, $id, $studentId)
+    {
+        $class   = SchoolClass::findOrFail($id);
+        $student = $class->students()->where('students.id', $studentId)->firstOrFail();
+
+        $request->validate([
+            'name'              => 'sometimes|required|string|max:255',
+            'email'             => 'sometimes|required|email|unique:students,email,' . $studentId,
+            'student_id_number' => 'sometimes|required|string|unique:students,student_id_number,' . $studentId,
+        ]);
+
+        $student->update($request->only(['name', 'email', 'student_id_number']));
+
+        return response()->json([
+            'message' => 'Student updated successfully.',
+            'student' => $student->fresh(),
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // DELETE /api/classes/{id}/students/{studentId}
+    // Removes student from class only — hindi nide-delete sa system
+    public function removeStudent($id, $studentId)
+    {
+        $class   = SchoolClass::findOrFail($id);
+        $student = $class->students()->where('students.id', $studentId)->firstOrFail();
+
+        $class->students()->detach($studentId);
+
+        return response()->json([
+            'message' => 'Student removed from class. Student record still exists in the system.',
+            'student' => $student,
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
     // GET /api/classes/{id}/students
     public function getStudents($id)
     {
