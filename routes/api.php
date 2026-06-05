@@ -6,12 +6,23 @@ use App\Http\Controllers\Api\SchoolClassApiController;
 
 Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function () {
 
-    // ─── CLASSES API (prefix: /api/school-classes para hindi mag-conflict sa web /classes) ───
-    Route::get('/school-classes',              [SchoolClassApiController::class, 'index']);
-    Route::post('/school-classes',             [SchoolClassApiController::class, 'store']);
-    Route::get('/school-classes/{id}',         [SchoolClassApiController::class, 'show']);
-    Route::put('/school-classes/{id}',         [SchoolClassApiController::class, 'update']);
-    Route::delete('/school-classes/{id}',      [SchoolClassApiController::class, 'destroy']);
+    // ─── CLASSES API (/api/classes) ───────────────────────────────────────────
+    Route::get('/classes',                       [SchoolClassApiController::class, 'index']);
+    Route::post('/classes',                      [SchoolClassApiController::class, 'store']);
+    Route::get('/classes/{id}',                  [SchoolClassApiController::class, 'show']);
+    Route::put('/classes/{id}',                  [SchoolClassApiController::class, 'update']);
+    Route::patch('/classes/{id}',                [SchoolClassApiController::class, 'update']);
+    Route::delete('/classes/{id}',               [SchoolClassApiController::class, 'destroy']);
+    Route::post('/classes/{id}/students',        [SchoolClassApiController::class, 'addStudent']);
+    Route::get('/classes/{id}/students',         [SchoolClassApiController::class, 'getStudents']);
+
+    // ─── SCHOOL-CLASSES API — backwards compat ────────────────────────────────
+    Route::get('/school-classes',                [SchoolClassApiController::class, 'index']);
+    Route::post('/school-classes',               [SchoolClassApiController::class, 'store']);
+    Route::get('/school-classes/{id}',           [SchoolClassApiController::class, 'show']);
+    Route::put('/school-classes/{id}',           [SchoolClassApiController::class, 'update']);
+    Route::patch('/school-classes/{id}',         [SchoolClassApiController::class, 'update']);
+    Route::delete('/school-classes/{id}',        [SchoolClassApiController::class, 'destroy']);
     Route::post('/school-classes/{id}/students', [SchoolClassApiController::class, 'addStudent']);
     Route::get('/school-classes/{id}/students',  [SchoolClassApiController::class, 'getStudents']);
 
@@ -19,12 +30,13 @@ Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function (
     Route::get('/teachers/{teacher_id}/students', [SchoolClassApiController::class, 'getTeacherStudents']);
 
     // ─── ATTENDANCE ───────────────────────────────────────────────────────────
-    // IMPORTANT: static routes MUST be above wildcard {id} routes
-    Route::get('/attendance/students', [AttendanceApiController::class, 'getAllStudents']);
+    Route::get('/attendance/students',  [AttendanceApiController::class, 'getAllStudents']);
 
-    Route::get('/attendance',          [AttendanceApiController::class, 'index']);
-    Route::post('/attendance',         [AttendanceApiController::class, 'store']);
-    Route::put('/attendance/{id}',     [AttendanceApiController::class, 'update']);
-    Route::delete('/attendance/{id}',  [AttendanceApiController::class, 'destroy']);
+    Route::get('/attendance',           [AttendanceApiController::class, 'index']);
+    Route::post('/attendance',          [AttendanceApiController::class, 'store']);
+    Route::get('/attendance/{id}',      [AttendanceApiController::class, 'show']);
+    Route::put('/attendance/{id}',      [AttendanceApiController::class, 'update']);
+    Route::patch('/attendance/{id}',    [AttendanceApiController::class, 'update']);
+    Route::delete('/attendance/{id}',   [AttendanceApiController::class, 'destroy']);
 
 });

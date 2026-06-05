@@ -36,41 +36,18 @@ class AttendanceApiController extends Controller
         return response()->json($query->get(), 200, [], JSON_PRETTY_PRINT);
     }
 
+    // ─── GET SINGLE ATTENDANCE ────────────────────────────────────────────────
+    // GET /api/attendance/{id}
+    public function show($id)
+    {
+        $attendance = Attendance::with(['student', 'schoolClass'])->findOrFail($id);
+        return response()->json($attendance, 200, [], JSON_PRETTY_PRINT);
+    }
+
     // ─── CREATE ATTENDANCE (with auto-create + auto-enroll student) ───────────
     // POST /api/attendance
-    //
-    // Minimum required fields:
-    //   school_class_id, student_id_number, attendance_date, status
-    //
-    // If student_id_number does NOT exist yet in the students table,
-    //   you must also send: name, email
-    //
-    // Behavior:
-    //   1. Student exists?    → use existing record
-    //   2. Student not found? → auto-create using name + email
-    //   3. Not enrolled yet?  → auto-enroll in the class
-    //   4. Record attendance  → updateOrCreate (no duplicates per day per class)
-    //
-    // Example body (new student):
-    // {
-    //   "school_class_id":   1,
-    //   "student_id_number": "2024-9999",
-    //   "name":              "Bagong Estudyante",
-    //   "email":             "bago@example.com",
-    //   "attendance_date":   "2026-06-04",
-    //   "status":            "present"
-    // }
-    //
-    // Example body (existing student):
-    // {
-    //   "school_class_id":   1,
-    //   "student_id_number": "2024-0001",
-    //   "attendance_date":   "2026-06-04",
-    //   "status":            "present"
-    // }
     public function store(Request $request)
     {
-        // ── Step 1: Validate base fields ──────────────────────────────────────
         $request->validate([
             'school_class_id'   => 'required|exists:school_classes,id',
             'student_id_number' => 'required|string',
@@ -80,14 +57,12 @@ class AttendanceApiController extends Controller
 
         $class = SchoolClass::findOrFail($request->school_class_id);
 
-        // ── Step 2: Find or create student ────────────────────────────────────
         $student = Student::where('student_id_number', $request->student_id_number)->first();
 
         $wasCreated  = false;
         $wasEnrolled = false;
 
         if (!$student) {
-            // New student — name and email are required
             $request->validate([
                 'name'  => 'required|string|max:255',
                 'email' => 'required|email|unique:students,email',
@@ -102,7 +77,6 @@ class AttendanceApiController extends Controller
             $wasCreated = true;
         }
 
-        // ── Step 3: Auto-enroll if not yet in class ───────────────────────────
         $alreadyEnrolled = $class->students()->where('students.id', $student->id)->exists();
 
         if (!$alreadyEnrolled) {
@@ -110,7 +84,6 @@ class AttendanceApiController extends Controller
             $wasEnrolled = true;
         }
 
-        // ── Step 4: Record attendance (no duplicate per student per class per day)
         $attendance = Attendance::updateOrCreate(
             [
                 'school_class_id'   => $class->id,
@@ -123,7 +96,6 @@ class AttendanceApiController extends Controller
             ]
         );
 
-        // ── Step 5: Build a helpful response message ──────────────────────────
         $actions = [];
         if ($wasCreated)  $actions[] = 'Student created';
         if ($wasEnrolled) $actions[] = 'Enrolled in class';
@@ -169,7 +141,7 @@ class AttendanceApiController extends Controller
 
     // ─── GET ALL STUDENTS IN THE SYSTEM ───────────────────────────────────────
     // GET /api/attendance/students
-    // GET /api/attendance/students?class_id=1  → students sa isang class lang
+    // GET /api/attendance/students?class_id=1
     public function getAllStudents(Request $request)
     {
         if ($request->filled('class_id')) {
