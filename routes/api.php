@@ -39,6 +39,10 @@ Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function (
     Route::get('/teachers/{teacher_id}/students', [SchoolClassApiController::class, 'getTeacherStudents']);
 
     // ─── ATTENDANCE ───────────────────────────────────────────────────────────
+    Route::get('/attendance/student/{id}',   [AttendanceApiController::class, 'showStudent']);
+    Route::put('/attendance/student/{id}',   [AttendanceApiController::class, 'updateStudent']);
+    Route::patch('/attendance/student/{id}', [AttendanceApiController::class, 'updateStudent']);
+    Route::delete('/attendance/student/{id}',[AttendanceApiController::class, 'destroyStudent']);
     Route::get('/attendance/students',  [AttendanceApiController::class, 'getAllStudents']);
     Route::get('/attendance',           [AttendanceApiController::class, 'index']);
     Route::post('/attendance',          [AttendanceApiController::class, 'store']);

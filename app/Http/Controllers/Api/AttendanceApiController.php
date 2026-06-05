@@ -51,7 +51,7 @@ class AttendanceApiController extends Controller
                 'name'  => 'required|string|max:255',
                 'email' => 'required|email|unique:students,email',
             ]);
-            $student    = Student::create([
+            $student = Student::create([
                 'student_id_number' => $request->student_id_number,
                 'name'              => $request->name,
                 'email'             => $request->email,
@@ -90,7 +90,6 @@ class AttendanceApiController extends Controller
     }
 
     // PUT/PATCH /api/attendance/{id}
-    // Pwedeng palitan ang lahat: school_class_id, student_id_number, name, email, attendance_date, status
     public function update(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
@@ -104,7 +103,6 @@ class AttendanceApiController extends Controller
             'status'            => 'sometimes|in:present,absent,late',
         ]);
 
-        // ── Step 1: Update student record (name, email) separately ────────────
         if ($request->filled('student_id_number') || $request->filled('name') || $request->filled('email')) {
             $studentIdNumber = $request->student_id_number ?? $attendance->student_id_number;
             $student = Student::where('student_id_number', $studentIdNumber)->first();
@@ -117,7 +115,6 @@ class AttendanceApiController extends Controller
             }
         }
 
-        // ── Step 2: Update only attendance-table columns ──────────────────────
         $attendanceData = [];
         if ($request->filled('school_class_id'))   $attendanceData['school_class_id']   = $request->school_class_id;
         if ($request->filled('student_id_number'))  $attendanceData['student_id_number'] = $request->student_id_number;
@@ -159,6 +156,47 @@ class AttendanceApiController extends Controller
         return response()->json([
             'total'    => $students->count(),
             'students' => $students,
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // ─── GET SINGLE STUDENT ───────────────────────────────────────────────────
+    // GET /api/attendance/student/{id}
+    public function showStudent($id)
+    {
+        $student = Student::with('schoolClasses:id,name,code')->findOrFail($id);
+        return response()->json($student, 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // ─── UPDATE STUDENT ───────────────────────────────────────────────────────
+    // PUT/PATCH /api/attendance/student/{id}
+    public function updateStudent(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+
+        $request->validate([
+            'name'              => 'sometimes|required|string|max:255',
+            'email'             => 'sometimes|required|email|unique:students,email,' . $id,
+            'student_id_number' => 'sometimes|required|string|unique:students,student_id_number,' . $id,
+        ]);
+
+        $student->update($request->only(['name', 'email', 'student_id_number']));
+
+        return response()->json([
+            'message' => 'Student updated successfully.',
+            'student' => $student->fresh()->load('schoolClasses:id,name,code'),
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // ─── DELETE STUDENT ───────────────────────────────────────────────────────
+    // DELETE /api/attendance/student/{id}
+    public function destroyStudent($id)
+    {
+        $student = Student::findOrFail($id);
+        $student->schoolClasses()->detach();
+        $student->delete();
+
+        return response()->json([
+            'message' => 'Student deleted successfully.',
         ], 200, [], JSON_PRETTY_PRINT);
     }
 }
