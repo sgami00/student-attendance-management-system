@@ -7,7 +7,7 @@
     </div>
 
     @php
-        $attendanceRate = $total > 0 ? round((($presentCount + ($lateCount * 0.5)) / $total) * 100) : 0;
+        $attendanceRate = $total > 0 ? round((($presentCount + ($lateCount * 0.75)) / $total) * 100) : 0;
     @endphp
 
     <div class="bg-white rounded shadow p-6 mb-6 border-t-4 border-indigo-600 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -21,8 +21,10 @@
         <div class="text-center md:text-right">
             <div class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Attendance Rate</div>
             <div class="text-4xl font-extrabold
-                @if($attendanceRate >= 75) text-emerald-500
-                @elseif($attendanceRate >= 50) text-yellow-500
+                @if($attendanceRate >= 90) text-emerald-500
+                @elseif($attendanceRate >= 75) text-blue-500
+                @elseif($attendanceRate >= 60) text-yellow-500
+                @elseif($attendanceRate >= 40) text-orange-500
                 @else text-red-500
                 @endif
             ">{{ $attendanceRate }}%</div>
