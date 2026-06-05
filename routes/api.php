@@ -3,8 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AttendanceApiController;
 use App\Http\Controllers\Api\SchoolClassApiController;
+use App\Http\Controllers\Api\StudentApiController;
 
 Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function () {
+
+    // ─── STUDENTS API ─────────────────────────────────────────────────────────
+    Route::get('/students',          [StudentApiController::class, 'index']);
+    Route::post('/students',         [StudentApiController::class, 'store']);
+    Route::get('/students/{id}',     [StudentApiController::class, 'show']);
+    Route::put('/students/{id}',     [StudentApiController::class, 'update']);
+    Route::patch('/students/{id}',   [StudentApiController::class, 'update']);
+    Route::delete('/students/{id}',  [StudentApiController::class, 'destroy']);
 
     // ─── CLASSES API (/api/classes) ───────────────────────────────────────────
     Route::get('/classes',                       [SchoolClassApiController::class, 'index']);
@@ -31,7 +40,6 @@ Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function (
 
     // ─── ATTENDANCE ───────────────────────────────────────────────────────────
     Route::get('/attendance/students',  [AttendanceApiController::class, 'getAllStudents']);
-
     Route::get('/attendance',           [AttendanceApiController::class, 'index']);
     Route::post('/attendance',          [AttendanceApiController::class, 'store']);
     Route::get('/attendance/{id}',      [AttendanceApiController::class, 'show']);

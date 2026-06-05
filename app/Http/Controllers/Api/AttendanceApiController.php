@@ -114,20 +114,42 @@ class AttendanceApiController extends Controller
     }
 
     // ─── UPDATE ATTENDANCE STATUS ─────────────────────────────────────────────
-    // PUT /api/attendance/{id}
-    // Body: { "status": "late" }
+    // PUT/PATCH /api/attendance/{id}
+    // Pwedeng i-update ang lahat: status, date, student info, class
     public function update(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
-        $validated  = $request->validate([
-            'status' => 'required|in:present,absent,late',
+
+        $validated = $request->validate([
+            'school_class_id'   => 'sometimes|exists:school_classes,id',
+            'student_id_number' => 'sometimes|string',
+            'name'              => 'sometimes|string|max:255',
+            'email'             => 'sometimes|email',
+            'attendance_date'   => 'sometimes|date',
+            'status'            => 'sometimes|in:present,absent,late',
         ]);
+
+        // If student_id_number is being updated, update student record too
+        if ($request->filled('student_id_number') || $request->filled('name') || $request->filled('email')) {
+            $studentIdNumber = $request->student_id_number ?? $attendance->student_id_number;
+            $student = Student::where('student_id_number', $studentIdNumber)->first();
+
+            if ($student) {
+                if ($request->filled('name'))  $student->name  = $request->name;
+                if ($request->filled('email')) $student->email = $request->email;
+                $student->save();
+            }
+
+            if ($request->filled('name')) {
+                $validated['student_name'] = $request->name;
+            }
+        }
 
         $attendance->update($validated);
 
         return response()->json([
             'message' => 'Attendance updated successfully.',
-            'data'    => $attendance,
+            'data'    => $attendance->fresh()->load(['student', 'schoolClass']),
         ], 200, [], JSON_PRETTY_PRINT);
     }
 
