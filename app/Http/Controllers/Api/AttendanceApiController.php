@@ -141,8 +141,22 @@ class AttendanceApiController extends Controller
         ], 200, [], JSON_PRETTY_PRINT);
     }
 
+    // DELETE /api/attendance/all
+    public function destroyAll()
+    {
+        $count = Attendance::count();
+
+        // Use query()->delete() instead of truncate() to avoid
+        // FK constraint issues with MySQL
+        Attendance::query()->delete();
+
+        return response()->json([
+            'message' => 'All attendance records deleted successfully.',
+            'deleted' => $count,
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
     // GET /api/attendance/students
-    // GET /api/attendance/students?class_id=1
     public function getAllStudents(Request $request)
     {
         if ($request->filled('class_id')) {
@@ -159,7 +173,6 @@ class AttendanceApiController extends Controller
         ], 200, [], JSON_PRETTY_PRINT);
     }
 
-    // ─── GET SINGLE STUDENT ───────────────────────────────────────────────────
     // GET /api/attendance/student/{id}
     public function showStudent($id)
     {
@@ -167,7 +180,6 @@ class AttendanceApiController extends Controller
         return response()->json($student, 200, [], JSON_PRETTY_PRINT);
     }
 
-    // ─── UPDATE STUDENT ───────────────────────────────────────────────────────
     // PUT/PATCH /api/attendance/student/{id}
     public function updateStudent(Request $request, $id)
     {
@@ -187,7 +199,6 @@ class AttendanceApiController extends Controller
         ], 200, [], JSON_PRETTY_PRINT);
     }
 
-    // ─── DELETE STUDENT ───────────────────────────────────────────────────────
     // DELETE /api/attendance/student/{id}
     public function destroyStudent($id)
     {

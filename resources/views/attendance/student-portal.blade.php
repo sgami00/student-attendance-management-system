@@ -1,3 +1,4 @@
+{{-- File: resources/views/attendance/student-portal.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +12,25 @@
             background: linear-gradient(135deg, #d4f0e8 0%, #eef8f3 60%, #d9f0ff 100%);
             min-height: 100vh;
             font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+
+        /* ── Subject rate ring ── */
+        .rate-ring {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+        }
+        .rate-ring svg { transform: rotate(-90deg); }
+        .rate-ring-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            line-height: 1;
         }
     </style>
 </head>
@@ -40,33 +60,31 @@
     </nav>
 
     @php
-        $attendanceRate = $total > 0 ? round((($presentCount + ($lateCount * 0.75)) / $total) * 100) : 0;
+        // Overall rate (present only, same formula as before)
+        $attendanceRate = $total > 0 ? round(($presentCount / $total) * 100) : 0;
+
+        // Per-subject breakdown
+        $bySubject = $attendances->groupBy('school_class_id')->map(function ($records) {
+            $subTotal   = $records->count();
+            $present    = $records->where('status', 'present')->count();
+            $absent     = $records->where('status', 'absent')->count();
+            $late       = $records->where('status', 'late')->count();
+            $rate       = $subTotal > 0 ? round(($present / $subTotal) * 100) : 0;
+            $className  = optional($records->first()->schoolClass)->name ?? '—';
+            $classCode  = optional($records->first()->schoolClass)->code ?? '';
+            return compact('subTotal', 'present', 'absent', 'late', 'rate', 'className', 'classCode');
+        })->sortByDesc('rate');
     @endphp
 
     <div class="max-w-3xl mx-auto space-y-5">
 
         {{-- Profile Card --}}
         <div class="bg-white rounded-2xl shadow p-6 border-l-4 border-emerald-500">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ $student->name }}</h1>
-                    <p class="text-sm text-gray-500 mt-0.5">
-                        <span class="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-xs">{{ $student->student_id_number }}</span>
-                        &nbsp;·&nbsp; {{ $student->email }}
-                    </p>
-                </div>
-                <div class="text-center sm:text-right">
-                    <div class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Attendance Rate</div>
-                    <div class="text-4xl font-extrabold
-                        @if($attendanceRate >= 90) text-emerald-500
-                        @elseif($attendanceRate >= 75) text-blue-500
-                        @elseif($attendanceRate >= 60) text-yellow-500
-                        @elseif($attendanceRate >= 40) text-orange-500
-                        @else text-red-500
-                        @endif
-                    ">{{ $attendanceRate }}%</div>
-                </div>
-            </div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ $student->name }}</h1>
+            <p class="text-sm text-gray-500 mt-0.5">
+                <span class="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-xs">{{ $student->student_id_number }}</span>
+                &nbsp;·&nbsp; {{ $student->email }}
+            </p>
         </div>
 
         {{-- Summary Cards --}}
@@ -87,6 +105,69 @@
                 <div class="text-xs text-gray-400 mt-1">sessions</div>
             </div>
         </div>
+
+        {{-- ── Per-Subject Attendance Rate ── --}}
+        @if($bySubject->isNotEmpty())
+        <div class="bg-white rounded-2xl shadow overflow-hidden">
+            <div class="p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800">Attendance Rate per Subject</h2>
+                <p class="text-xs text-gray-400 mt-0.5">{{ $bySubject->count() }} enrolled subject(s)</p>
+            </div>
+
+            <ul class="divide-y divide-gray-100">
+                @foreach($bySubject as $subject)
+                @php
+                    $r = $subject['rate'];
+                    if ($r >= 90)      { $color = '#10b981'; $bg = '#ecfdf5'; $label = 'Excellent'; }
+                    elseif ($r >= 75)  { $color = '#3b82f6'; $bg = '#eff6ff'; $label = 'Good'; }
+                    elseif ($r >= 60)  { $color = '#f59e0b'; $bg = '#fffbeb'; $label = 'At Risk'; }
+                    elseif ($r >= 40)  { $color = '#f97316'; $bg = '#fff7ed'; $label = 'Warning'; }
+                    else               { $color = '#ef4444'; $bg = '#fef2f2'; $label = 'Critical'; }
+
+                    $circumference = 2 * 3.14159 * 20; // r=20
+                    $offset = $circumference - ($r / 100) * $circumference;
+                @endphp
+                <li class="px-5 py-4 flex items-center gap-4">
+
+                    {{-- Ring gauge --}}
+                    <div class="rate-ring">
+                        <svg viewBox="0 0 44 44" width="52" height="52">
+                            <circle cx="22" cy="22" r="20" fill="none" stroke="#e5e7eb" stroke-width="3.5"/>
+                            <circle cx="22" cy="22" r="20" fill="none"
+                                stroke="{{ $color }}" stroke-width="3.5"
+                                stroke-linecap="round"
+                                stroke-dasharray="{{ $circumference }}"
+                                stroke-dashoffset="{{ $offset }}"
+                                style="transition: stroke-dashoffset 0.8s ease;"/>
+                        </svg>
+                        <div class="rate-ring-text" style="color: {{ $color }};">{{ $r }}%</div>
+                    </div>
+
+                    {{-- Subject info --}}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-semibold text-gray-800 text-sm truncate">{{ $subject['className'] }}</span>
+                            <span class="font-mono text-xs px-1.5 py-0.5 rounded" style="background: {{ $bg }}; color: {{ $color }};">{{ $subject['classCode'] }}</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background: {{ $bg }}; color: {{ $color }};">{{ $label }}</span>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-emerald-600 font-medium"><i class="fa-solid fa-check mr-0.5"></i>{{ $subject['present'] }} present</span>
+                            <span class="text-xs text-red-400 font-medium"><i class="fa-solid fa-xmark mr-0.5"></i>{{ $subject['absent'] }} absent</span>
+                            <span class="text-xs text-yellow-500 font-medium"><i class="fa-solid fa-clock mr-0.5"></i>{{ $subject['late'] }} late</span>
+                            <span class="text-xs text-gray-400">/ {{ $subject['subTotal'] }} sessions</span>
+                        </div>
+                        {{-- Mini progress bar --}}
+                        <div class="mt-1.5 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-700"
+                                 style="width: {{ $r }}%; background: {{ $color }};"></div>
+                        </div>
+                    </div>
+
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
 
         {{-- Attendance Table --}}
         <div class="bg-white rounded-2xl shadow overflow-hidden">

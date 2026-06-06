@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SchoolClassApiController extends Controller
 {
@@ -41,7 +42,7 @@ class SchoolClassApiController extends Controller
         return response()->json($class, 200, [], JSON_PRETTY_PRINT);
     }
 
-    // PUT /api/classes/{id}
+    // PUT/PATCH /api/classes/{id}
     public function update(Request $request, $id)
     {
         $class = SchoolClass::findOrFail($id);
@@ -71,6 +72,23 @@ class SchoolClassApiController extends Controller
 
         return response()->json([
             'message' => 'Class and its related data deleted successfully.',
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // DELETE /api/classes/all
+    public function destroyAll()
+    {
+        $classCount = SchoolClass::count();
+
+        // Use query()->delete() instead of truncate() to avoid
+        // FK constraint issues and transaction conflicts with MySQL
+        Attendance::query()->delete();
+        DB::table('class_student')->delete();
+        SchoolClass::query()->delete();
+
+        return response()->json([
+            'message'         => 'All classes, enrollments, and attendance records deleted successfully.',
+            'deleted_classes' => $classCount,
         ], 200, [], JSON_PRETTY_PRINT);
     }
 
@@ -137,7 +155,6 @@ class SchoolClassApiController extends Controller
     }
 
     // DELETE /api/classes/{id}/students/{studentId}
-    // Removes student from class only — hindi nide-delete sa system
     public function removeStudent($id, $studentId)
     {
         $class   = SchoolClass::findOrFail($id);
@@ -164,7 +181,6 @@ class SchoolClassApiController extends Controller
     }
 
     // GET /api/teachers/{teacher_id}/students
-    // Lahat ng students ng isang teacher across all classes niya
     public function getTeacherStudents($teacher_id)
     {
         $classes = SchoolClass::where('teacher_id', $teacher_id)
@@ -173,15 +189,14 @@ class SchoolClassApiController extends Controller
 
         if ($classes->isEmpty()) {
             return response()->json([
-                'message'  => 'No classes found for this teacher.',
-                'teacher_id' => $teacher_id,
+                'message'        => 'No classes found for this teacher.',
+                'teacher_id'     => $teacher_id,
                 'total_classes'  => 0,
                 'total_students' => 0,
-                'classes'  => [],
+                'classes'        => [],
             ], 200, [], JSON_PRETTY_PRINT);
         }
 
-        // Collect all students, grouped by class
         $classesData = $classes->map(function ($class) {
             return [
                 'class_id'   => $class->id,
@@ -192,10 +207,7 @@ class SchoolClassApiController extends Controller
             ];
         });
 
-        // All unique students across all classes (walang duplicate)
-        $allStudents = $classes->flatMap(function ($class) {
-            return $class->students;
-        })->unique('id')->values();
+        $allStudents = $classes->flatMap(fn($c) => $c->students)->unique('id')->values();
 
         return response()->json([
             'teacher_id'     => $teacher_id,

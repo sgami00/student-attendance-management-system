@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\AttendanceApiController;
 use App\Http\Controllers\Api\SchoolClassApiController;
 use App\Http\Controllers\Api\StudentApiController;
 
-Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
 
     // ─── STUDENTS API ─────────────────────────────────────────────────────────
     Route::get('/students',          [StudentApiController::class, 'index']);
@@ -18,6 +18,7 @@ Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function (
     // ─── CLASSES API ─────────────────────────────────────────────────────────
     Route::get('/classes',                 [SchoolClassApiController::class, 'index']);
     Route::post('/classes',                [SchoolClassApiController::class, 'store']);
+    Route::delete('/classes/all',          [SchoolClassApiController::class, 'destroyAll']);  // delete all — must be BEFORE /{id}
     Route::get('/classes/{id}',            [SchoolClassApiController::class, 'show']);
     Route::put('/classes/{id}',            [SchoolClassApiController::class, 'update']);
     Route::patch('/classes/{id}',          [SchoolClassApiController::class, 'update']);
@@ -34,6 +35,7 @@ Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function (
     // ─── SCHOOL-CLASSES API — backwards compat ───────────────────────────────
     Route::get('/school-classes',                [SchoolClassApiController::class, 'index']);
     Route::post('/school-classes',               [SchoolClassApiController::class, 'store']);
+    Route::delete('/school-classes/all',         [SchoolClassApiController::class, 'destroyAll']);  // delete all — must be BEFORE /{id}
     Route::get('/school-classes/{id}',           [SchoolClassApiController::class, 'show']);
     Route::put('/school-classes/{id}',           [SchoolClassApiController::class, 'update']);
     Route::patch('/school-classes/{id}',         [SchoolClassApiController::class, 'update']);
@@ -50,6 +52,7 @@ Route::withoutMiddleware(['auth', 'auth:sanctum', 'auth:web'])->group(function (
     Route::patch('/attendance/student/{id}',  [AttendanceApiController::class, 'updateStudent']);
     Route::delete('/attendance/student/{id}', [AttendanceApiController::class, 'destroyStudent']);
     Route::get('/attendance/students',        [AttendanceApiController::class, 'getAllStudents']);
+    Route::delete('/attendance/all',          [AttendanceApiController::class, 'destroyAll']);  // delete all — must be BEFORE /{id}
     Route::get('/attendance',                 [AttendanceApiController::class, 'index']);
     Route::post('/attendance',                [AttendanceApiController::class, 'store']);
     Route::get('/attendance/{id}',            [AttendanceApiController::class, 'show']);
