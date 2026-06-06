@@ -64,7 +64,11 @@ class StudentAuthController extends Controller
         $absentCount  = $attendances->where('status', 'absent')->count();
         $lateCount    = $attendances->where('status', 'late')->count();
         $total        = $attendances->count();
-        $attendanceRate = $total > 0 ? round(($presentCount / $total) * 100) : 0;
+
+        // Late counts as 50%, absent counts as 0%
+        $attendanceRate = $total > 0
+            ? round((($presentCount + ($lateCount * 0.5)) / $total) * 100)
+            : 0;
 
         return view('attendance.student-portal', compact(
             'student', 'attendances', 'presentCount', 'absentCount', 'lateCount', 'total', 'attendanceRate'

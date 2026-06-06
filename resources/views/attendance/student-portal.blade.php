@@ -60,18 +60,28 @@
     </nav>
 
     @php
-        // Overall rate (present only, same formula as before)
-        $attendanceRate = $total > 0 ? round(($presentCount / $total) * 100) : 0;
+        // Overall rate: present = 100%, late = 50%, absent = 0%
+        $attendanceRate = $total > 0
+            ? round((($presentCount + ($lateCount * 0.5)) / $total) * 100)
+            : 0;
 
-        // Per-subject breakdown
-        $bySubject = $attendances->groupBy('school_class_id')->map(function ($records) {
-            $subTotal   = $records->count();
-            $present    = $records->where('status', 'present')->count();
-            $absent     = $records->where('status', 'absent')->count();
-            $late       = $records->where('status', 'late')->count();
-            $rate       = $subTotal > 0 ? round(($present / $subTotal) * 100) : 0;
-            $className  = optional($records->first()->schoolClass)->name ?? '—';
-            $classCode  = optional($records->first()->schoolClass)->code ?? '';
+        // Per-subject breakdown — group by class name+code so same subject
+        // across different class IDs (e.g. multiple sessions) is combined.
+        $bySubject = $attendances->groupBy(function ($record) {
+            $name = optional($record->schoolClass)->name ?? 'Unknown';
+            $code = optional($record->schoolClass)->code ?? '';
+            return $name . '||' . $code;
+        })->map(function ($records) {
+            $subTotal  = $records->count();
+            $present   = $records->where('status', 'present')->count();
+            $absent    = $records->where('status', 'absent')->count();
+            $late      = $records->where('status', 'late')->count();
+            // late = 50%, absent = 0%
+            $rate      = $subTotal > 0
+                ? round((($present + ($late * 0.5)) / $subTotal) * 100)
+                : 0;
+            $className = optional($records->first()->schoolClass)->name ?? '—';
+            $classCode = optional($records->first()->schoolClass)->code ?? '';
             return compact('subTotal', 'present', 'absent', 'late', 'rate', 'className', 'classCode');
         })->sortByDesc('rate');
     @endphp
